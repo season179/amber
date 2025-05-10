@@ -1,0 +1,40 @@
+# Environment and dependencies
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.env.*
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+
+# Memory files (potentially containing personal data)
+memory_store/*.json
+memory_store/*.yaml
+
+# Local development
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Streamlit
+.streamlit/
+
+# OS specific
+.DS_Store
+Thumbs.db
+**/.claude/settings.local.json
