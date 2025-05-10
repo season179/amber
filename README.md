@@ -56,12 +56,30 @@ cp .env.example .env
 streamlit run app.py
 ```
 
+## Running Tests
+
+The project includes comprehensive test suites for all components:
+
+```bash
+# Run all tests
+python tests/run_tests.py
+
+# Run specific test categories
+python tests/run_tests.py --type memory
+python tests/run_tests.py --type agents
+python tests/run_tests.py --type integration
+```
+
 ## Project Structure
 
 - `src/agents/` - Agent implementations
 - `src/memory/` - Memory storage and retrieval
 - `src/interface/` - User interface components
 - `src/utils/` - Helper utilities
+- `tests/` - Test suites for all components
+  - `tests/memory/` - Tests for memory storage
+  - `tests/agents/` - Tests for agent functionality
+  - `tests/integration/` - End-to-end integration tests
 
 ## Development Roadmap
 

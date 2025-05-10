@@ -1,0 +1,4 @@
+# Ignore temporary test data files
+temp_memory_store/
+*.json
+*.yaml

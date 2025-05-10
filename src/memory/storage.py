@@ -73,34 +73,37 @@ class MemoryStorage:
             elif self.format_type == 'yaml':
                 yaml.dump(data, f)
     
-    def add_memory(self, content: str, 
-                   tags: List[str] = None, 
+    def add_memory(self, content: str,
+                   tags: List[str] = None,
                    topic: str = None,
                    importance: int = 1,
                    source: str = "conversation") -> str:
         """
         Add a new memory to storage.
-        
+
         Args:
             content: The memory content
             tags: List of tags to categorize the memory
             topic: Topic to store the memory under
             importance: Importance score (1-10)
             source: Source of the memory
-            
+
         Returns:
             memory_id: ID of the created memory
         """
         if tags is None:
             tags = []
-            
-        memory_id = f"mem_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        
+
+        # Generate a unique ID using timestamp and microseconds + random suffix
+        timestamp = datetime.now()
+        random_suffix = os.urandom(2).hex()  # 4 random hex characters
+        memory_id = f"mem_{timestamp.strftime('%Y%m%d%H%M%S')}_{timestamp.microsecond}_{random_suffix}"
+
         memory = {
             "id": memory_id,
             "content": content,
-            "created_at": datetime.now().isoformat(),
-            "last_accessed": datetime.now().isoformat(),
+            "created_at": timestamp.isoformat(),
+            "last_accessed": timestamp.isoformat(),
             "access_count": 0,
             "importance": importance,
             "tags": tags,
@@ -148,59 +151,73 @@ class MemoryStorage:
         
         return None
     
-    def search_memories(self, 
-                        query: str = None, 
+    def search_memories(self,
+                        query: str = None,
                         tags: List[str] = None,
                         topic: str = None,
                         limit: int = 10,
                         min_importance: int = 0) -> List[Dict[str, Any]]:
         """
         Search for memories based on criteria.
-        
+
         Args:
             query: Text to search for in memory content
             tags: List of tags to filter by
             topic: Topic to search within
             limit: Maximum number of results
             min_importance: Minimum importance score
-            
+
         Returns:
             List of matching memories
         """
         # Determine which file to search
-        if topic and topic in self.topics:
-            data = self._read_from_file(self.topics[topic])
+        if topic:
+            # If topic is provided but not in self.topics, check if the file exists
+            topic_file = os.path.join(self.storage_dir, f"topic_{topic}.{self.format_type}")
+            if os.path.exists(topic_file):
+                # Add to topics dict if it exists but wasn't loaded
+                self.topics[topic] = topic_file
+                data = self._read_from_file(topic_file)
+            elif topic in self.topics:
+                data = self._read_from_file(self.topics[topic])
+            else:
+                # If topic doesn't exist, return empty results
+                return []
         else:
             data = self._read_from_file(self.general_file)
-        
+
         results = []
-        
+
         for memory in data["memories"]:
             # Skip if below minimum importance
             if memory["importance"] < min_importance:
                 continue
-                
+
             # Filter by query text
             if query and query.lower() not in memory["content"].lower():
                 continue
-                
+
             # Filter by tags
             if tags:
                 if not all(tag in memory["tags"] for tag in tags):
                     continue
-            
+
             results.append(memory)
-            
+
             # Update access metadata
             memory["last_accessed"] = datetime.now().isoformat()
             memory["access_count"] += 1
-            
+
             if len(results) >= limit:
                 break
-                
-        # Write back the updated access times
-        self._write_to_file(self.general_file if not topic else self.topics[topic], data)
-        
+
+        # Only write back if we found any results to update
+        if results and topic:
+            if topic in self.topics:
+                self._write_to_file(self.topics[topic], data)
+        elif results:
+            self._write_to_file(self.general_file, data)
+
         return results
     
     def update_memory(self, memory_id: str, 
