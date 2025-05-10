@@ -9,6 +9,7 @@ from typing import Dict, List, Any, Optional
 import logging
 
 from .config import get_openrouter_api_key, get_default_model
+from security import safe_requests
 
 
 class LLMInterface:
@@ -155,7 +156,7 @@ class LLMInterface:
         
         try:
             # Make the API request
-            response = requests.get(
+            response = safe_requests.get(
                 models_endpoint,
                 headers=headers
             )
