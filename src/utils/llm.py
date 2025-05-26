@@ -90,8 +90,8 @@ class LLMInterface:
             response = requests.post(
                 self.api_endpoint,
                 headers=headers,
-                json=payload
-            )
+                json=payload, 
+            timeout=60)
             
             # Check for errors
             response.raise_for_status()
@@ -157,8 +157,8 @@ class LLMInterface:
             # Make the API request
             response = requests.get(
                 models_endpoint,
-                headers=headers
-            )
+                headers=headers, 
+            timeout=60)
             
             # Check for errors
             response.raise_for_status()
