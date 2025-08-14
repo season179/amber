@@ -20,6 +20,7 @@ setup(
         "openrouter>=0.1.0",
         "numpy>=1.24.0",
         "pandas>=2.0.0",
+        "security==1.3.1",
     ],
     python_requires=">=3.11",
     classifiers=[
